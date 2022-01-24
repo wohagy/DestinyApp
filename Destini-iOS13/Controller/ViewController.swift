@@ -2,25 +2,30 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    var game = StoryBrain()
+    
+    private var numberOfQuest = 0
 
     private static let fontSize: CGFloat = 23.0
     private static let spacing: CGFloat = 16.0
     
-    private let redButton: AnswerButton = {
+    private let choiseButton1: AnswerButton = {
         let button = AnswerButton()
-        button.customButton(color: #colorLiteral(red: 0.9833430648, green: 0.248759836, blue: 0.4750057459, alpha: 1), title: "Choise 1", fontSize: fontSize)
+        button.customButton(color: #colorLiteral(red: 0.9833430648, green: 0.248759836, blue: 0.4750057459, alpha: 1), fontSize: fontSize)
+        button.addTarget(self, action: #selector(choiseButtonAction(_:)), for: .touchUpInside)
         return button
     }()
     
-    private let purpleButton: AnswerButton = {
+    private let choiseButton2: AnswerButton = {
         let button = AnswerButton()
-        button.customButton(color: #colorLiteral(red: 0.5703944564, green: 0.342150569, blue: 0.6694917083, alpha: 1), title: "Choise 1", fontSize: fontSize)
+        button.customButton(color: #colorLiteral(red: 0.5703944564, green: 0.342150569, blue: 0.6694917083, alpha: 1), fontSize: fontSize)
+        button.addTarget(self, action: #selector(choiseButtonAction(_:)), for: .touchUpInside)
         return button
     }()
     
     private let storyTextLabel: UILabel = {
         let label = UILabel()
-        label.text = "Story Text"
         label.font = UIFont.systemFont(ofSize: fontSize + 2)
         label.textColor = .white
         label.textAlignment = .center
@@ -35,7 +40,7 @@ class ViewController: UIViewController {
     }()
     
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [storyTextLabel, redButton, purpleButton])
+        let stackView = UIStackView(arrangedSubviews: [storyTextLabel, choiseButton1, choiseButton2])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = Self.spacing
@@ -45,6 +50,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        updateUI()
     }
 
     private func setupView() {
@@ -65,14 +71,28 @@ class ViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor)
         ])
     }
+    
+    @objc private func choiseButtonAction(_ sender: UIButton){
+        guard let answer = sender.currentTitle else {return}
+        game.answerChoose(with: answer)
+        updateUI()
+    }
+    
+    private func updateUI(){
+        numberOfQuest = game.numberOfQuest
+        storyTextLabel.text = game.stories[numberOfQuest].title
+        choiseButton1.setTitle(game.stories[numberOfQuest].choise1, for: .normal)
+        choiseButton2.setTitle(game.stories[numberOfQuest].choise2, for: .normal)
+    }
+    
 }
 
 private extension UIButton {
     
-    func customButton(color: UIColor, title: String, fontSize: CGFloat) {
-        self.setTitle(title, for: .normal)
+    func customButton(color: UIColor, fontSize: CGFloat) {
         self.backgroundColor = color
         self.titleLabel?.font = UIFont.systemFont(ofSize: fontSize)
+        self.titleLabel?.adjustsFontSizeToFitWidth = true
         
         self.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([self.heightAnchor.constraint(equalToConstant: 100)])
